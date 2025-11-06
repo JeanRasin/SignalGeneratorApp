@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36518.9
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalGeneratorApp", "SignalGeneratorApp\SignalGeneratorApp.csproj", "{70F5D6F4-376C-46E2-885B-8334E6F1F3ED}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalGeneratorApp.Tests", "SignalGeneratorApp.Tests\SignalGeneratorApp.Tests.csproj", "{250EF8EA-1568-4178-8835-94CB843A963A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{70F5D6F4-376C-46E2-885B-8334E6F1F3ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{70F5D6F4-376C-46E2-885B-8334E6F1F3ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{70F5D6F4-376C-46E2-885B-8334E6F1F3ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{70F5D6F4-376C-46E2-885B-8334E6F1F3ED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{250EF8EA-1568-4178-8835-94CB843A963A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{250EF8EA-1568-4178-8835-94CB843A963A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{250EF8EA-1568-4178-8835-94CB843A963A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{250EF8EA-1568-4178-8835-94CB843A963A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FF472D9E-3870-4BA9-A806-159852C6931A}
+	EndGlobalSection
+EndGlobal

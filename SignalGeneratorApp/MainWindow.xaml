@@ -1,0 +1,179 @@
+﻿<Window x:Class="SignalGeneratorApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
+        xmlns:viewmodels="clr-namespace:SignalGeneratorApp.ViewModels"
+        xmlns:Views="clr-namespace:SignalGeneratorApp.Views"
+        mc:Ignorable="d"
+        Title="Генератор Сигналов" Height="1000" Width="1500" WindowStartupLocation="CenterScreen">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Основной контент -->
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="300"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Левая панель: Генерация сигнала -->
+            <Border Grid.Column="0" Margin="10" Padding="10" Background="{StaticResource PanelBackgroundBrush}" BorderBrush="{StaticResource PanelBorderBrush}" BorderThickness="1">
+                <StackPanel>
+                        <TextBlock Text="Генерация сигнала" FontWeight="Bold" Margin="0,0,0,10"/>
+
+                        <!-- Тип сигнала -->
+                        <Label Content="Тип сигнала" Margin="0,5,0,0"/>
+                        <ComboBox ItemsSource="{Binding SignalTypes}"
+                                  SelectedItem="{Binding SelectedSignalType, Mode=TwoWay}"
+                                  Margin="0,2,0,10">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Converter={StaticResource EnumToDescriptionConverter}}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+
+                        <!-- Амплитуда -->
+                        <Label Content="Амплитуда" Margin="0,5,0,0"/>
+                        <TextBox Text="{Binding Amplitude, Converter={StaticResource NullableDoubleConverter}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}" 
+                                 Style="{StaticResource ValidationTextBoxStyle}" />
+
+                        <!-- Частота -->
+                        <Label Content="Частота (Гц)" Margin="0,5,0,0"/>
+                        <TextBox Text="{Binding Frequency, Converter={StaticResource NullableDoubleConverter}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}" 
+                                 Style="{StaticResource ValidationTextBoxStyle}" />
+
+                        <!-- Фаза -->
+                        <Label Content="Фаза (рад)" Margin="0,5,0,0"/>
+                        <TextBox Text="{Binding Phase, Converter={StaticResource NullableDoubleConverter}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}" 
+                                 Style="{StaticResource ValidationTextBoxStyle}" />
+
+                        <!-- Количество точек -->
+                        <Label Content="Количество точек" Margin="0,5,0,0"/>
+                        <TextBox Text="{Binding PointCount, Converter={StaticResource NullableDoubleConverter}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}" 
+                                 Style="{StaticResource ValidationTextBoxStyle}" />
+
+                        <!-- Временной интервал -->
+                        <Label Content="Временной интервал (с)" Margin="0,5,0,0"/>
+                        <TextBox Text="{Binding TimeInterval, Converter={StaticResource NullableDoubleConverter}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}" 
+                                 Style="{StaticResource ValidationTextBoxStyle}" />
+
+                        <!-- Уровень шума -->
+                        <Label Content="Уровень шума (%)" Margin="0,5,0,0"/>
+                        <Slider Value="{Binding NoiseLevel, Mode=TwoWay}" 
+                                Style="{StaticResource ValidationSliderStyle}" 
+                                Minimum="0" Maximum="100" SmallChange="1" LargeChange="10"/>
+                        <TextBlock Text="{Binding NoiseLevel}" HorizontalAlignment="Right" FontSize="10" Margin="0,0,0,10"/>
+
+                        <!-- Прочие операции -->
+                        <GroupBox Header="Прочие операции" Margin="0,10,0,0">
+                            <StackPanel Orientation="Vertical">
+                                <Button Content="Генерировать"
+                                        Command="{Binding GenerateSignalCommand}"
+                                        CommandParameter="{Binding SelectedSignalType}"
+                                        Background="{StaticResource PrimaryButtonBrush}"
+                                        Foreground="White"
+                                        IsEnabled="{Binding AreParametersValid}"/>
+
+                                <Button Content="Сохранить"
+                                        Command="{Binding SaveCurrentSignalCommand}"
+                                        Background="{StaticResource PrimaryButtonBrush}"
+                                        Foreground="White">
+                                    <Button.IsEnabled>
+                                        <MultiBinding Converter="{StaticResource ANDBooleanToBooleanConverter}">
+                                            <Binding Path="HasSignalData" />
+                                            <Binding Path="AreParametersValid" />
+                                        </MultiBinding>
+                                    </Button.IsEnabled>
+                                </Button>
+
+                                <Button Content="Очистить"
+                                        Command="{Binding ClearSignalCommand}"
+                                        Background="{StaticResource DangerButtonBrush}"
+                                        Foreground="White"/>
+                            </StackPanel>
+                        </GroupBox>
+
+                        <!-- Обработка сигнала -->
+                        <GroupBox Header="Обработка сигнала" Margin="0,10,0,0">
+                            <Button Content="Сгладить"
+                                    Command="{Binding ApplyMedianFilterCommand}"
+                                    Background="{StaticResource WarningButtonBrush}"
+                                    Foreground="White">
+                                <Button.IsEnabled>
+                                    <MultiBinding Converter="{StaticResource ANDBooleanToBooleanConverter}">
+                                        <Binding Path="HasSignalData" />
+                                        <Binding Path="AreParametersValid" />
+                                    </MultiBinding>
+                                </Button.IsEnabled>
+                            </Button>
+                        </GroupBox>
+
+                        <!-- Экспорт и масштаб (перенесено в правую панель в исходном коде, но логичнее оставить здесь или вынести отдельно) -->
+                        <!-- Примечание: в оригинале эти кнопки ошибочно были в левой панели как GroupBox в StackPanel -->
+                        <!-- Чтобы не нарушать логику, мы их уберём отсюда и оставим ТОЛЬКО в правой панели -->
+
+                    </StackPanel>
+            </Border>
+
+            <!-- Правая панель: График и информация -->
+            <Grid Grid.Column="1" Margin="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- График -->
+                <Border Background="{StaticResource PanelBackgroundBrush}" BorderBrush="{StaticResource PanelBorderBrush}" BorderThickness="1" Padding="10">
+                    <lvc:CartesianChart x:Name="SignalChartControl"
+                                        Series="{Binding SignalVM.ChartSeries, Mode=OneWay}"
+                                        XAxes="{Binding SignalVM.XAxis, Mode=OneWay}"
+                                        YAxes="{Binding SignalVM.YAxis, Mode=OneWay}"
+                                        ZoomMode="Both" 
+                                        TooltipPosition="Top"/>
+                </Border>
+
+                <!-- Информация о сигнале + иконки -->
+                <Border Grid.Row="1" Margin="0,10,0,0" Background="{StaticResource InfoBackgroundBrush}" BorderBrush="{StaticResource InfoBorderBrush}" BorderThickness="1" Padding="10">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Текстовая информация -->
+                        <TextBlock Text="{Binding CurrentSignalInfo}" TextWrapping="Wrap" VerticalAlignment="Center"/>
+
+                        <!-- Иконки операций -->
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="10,0,0,0">
+                            <!-- Сбросить масштаб -->  
+                            <Button Content="Сбросить масштаб" 
+                                 Command="{Binding SignalVM.ResetZoomCommand}" 
+                                 Background="{StaticResource PrimaryButtonBrush}" 
+                                 Foreground="White" 
+                                 Margin="0,0,5,0"/>
+                            
+                            <!-- Экспорт -->
+                            <Button Content="Экспорт" 
+                                 Click="ExportChartToImage" 
+                                 IsEnabled="{Binding HasSignalData}" 
+                                 Background="{StaticResource PrimaryButtonBrush}" 
+                                 Foreground="White"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- История сигналов -->
+                <Views:SignalHistoryView DataContext="{Binding SignalHistoryVM}" Grid.Row="2" Margin="0,10,0,0"/>
+
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>
